@@ -1,0 +1,178 @@
+import csv
+import json
+import numpy as np
+import requests
+
+# =====================================================================
+# 1. OBJECT-ORIENTED PROGRAMMING (OOP)
+# Encapsulation, Inheritance, and Polymorphism
+# =====================================================================
+class BaseAgent:
+    def __init__(self, agent_id: int, name: str):
+        self.agent_id = agent_id        # Public attribute[span_0](start_span)[span_0](end_span)
+        self._status = "Idle"           # Protected attribute[span_1](start_span)[span_1](end_span)
+        self.__secret_key = "SEC-99"    # Private attribute (Encapsulation)[span_2](start_span)[span_2](end_span)
+
+    def get_secret_key(self):           # Getter method for private attribute[span_3](start_span)[span_3](end_span)
+        return self.__secret_key
+
+    def run_task(self):                 # Method to be overridden (Polymorphism)[span_4](start_span)[span_4](end_span)
+        raise NotImplementedError("Subclasses must implement run_task()")
+
+class SecurityAgent(BaseAgent):         # Single Inheritance[span_5](start_span)[span_5](end_span)
+    def run_task(self):                 # Method Overriding[span_6](start_span)[span_6](end_span)
+        self._status = "Scanning"
+        return f"[SecurityAgent {self.agent_id}]: Status set to {self._status}."
+
+class AnalysisAgent(BaseAgent):         # Single Inheritance[span_7](start_span)[span_7](end_span)
+    def run_task(self):                 # Method Overriding[span_8](start_span)[span_8](end_span)
+        self._status = "Processing"
+        return f"[AnalysisAgent {self.agent_id}]: Status set to {self._status}."
+
+
+# =====================================================================
+# 2. DATA HANDLING, FUNCTIONS, LAMBDAS & DATA STRUCTURES
+# Lists, Dictionaries, Sets, Tuples, enumerate, zip, Lambda & Filtering
+# =====================================================================
+def process_experiment_data(raw_scores: list, *tags, **metadata):
+    # Sets: Deduplication[span_9](start_span)[span_9](end_span)
+    unique_tags = set(tags)[span_10](start_span)[span_10](end_span)
+    
+    # Tuples and Enumerate: Pair model indexes with raw scores[span_11](start_span)[span_11](end_span)
+    model_tuples = [(f"Model_{idx+1}", score) for idx, score in enumerate(raw_scores)][span_12](start_span)[span_12](end_span)
+    
+    # Lambda Functions & Sorting: Sort by score in descending order[span_13](start_span)[span_13](end_span)
+    sorted_models = sorted(model_tuples, key=lambda x: x[1], reverse=True)[span_14](start_span)[span_14](end_span)
+    
+    # Dictionaries: Store structured key-value pairs[span_15](start_span)[span_15](end_span)[span_16](start_span)[span_16](end_span)
+    score_dict = {name: score for name, score in sorted_models}[span_17](start_span)[span_17](end_span)
+    
+    # Filtering with Lambda: Select models with score >= 0.75[span_18](start_span)[span_18](end_span)
+    passing_models = list(filter(lambda item: item[1] >= 0.75, sorted_models))[span_19](start_span)[span_19](end_span)
+    
+    # zip(): Map metrics to a list of values[span_20](start_span)[span_20](end_span)
+    metrics = ["Accuracy", "Precision", "Recall"][span_21](start_span)[span_21](end_span)
+    values = [0.88, 0.85, 0.90][span_22](start_span)[span_22](end_span)
+    metric_map = dict(zip(metrics, values))[span_23](start_span)[span_23](end_span)
+    
+    return score_dict, unique_tags, passing_models, metric_map
+
+
+# =====================================================================
+# 3. FILE HANDLING & API REQUESTS (GET / POST)
+# TXT, CSV, JSON, Requests & Exception Handling
+# =====================================================================
+def handle_files_and_apis():
+    # --- API GET Request & Exception Handling ---
+    get_url = "https://jsonplaceholder.typicode.com/posts/1[span_24](start_span)"[span_24](end_span)
+    try:
+        response = requests.get(get_url, timeout=5)[span_25](start_span)[span_25](end_span)
+        response.raise_for_status()  # Check for 200 OK[span_26](start_span)[span_26](end_span)
+        api_data = response.json()   # Convert JSON response to Python dict[span_27](start_span)[span_27](end_span)
+        print("[API GET Success] Received Post Title:", api_data.get("title"))[span_28](start_span)[span_28](end_span)
+    except requests.exceptions.RequestException as error:
+        print("[API GET Failed] Fallback data used due to error:", error)[span_29](start_span)[span_29](end_span)
+        api_data = {"id": 1, "title": "Fallback Config", "status": "offline"}[span_30](start_span)[span_30](end_span)
+
+    # --- API POST Request ---
+    post_url = "https://jsonplaceholder.typicode.com/posts[span_31](start_span)"[span_31](end_span)
+    try:
+        payload = {"title": "Lab Results", "body": "NumPy Metrics", "userId": 101}[span_32](start_span)[span_32](end_span)
+        post_response = requests.post(post_url, json=payload, timeout=5)[span_33](start_span)[span_33](end_span)
+        print("[API POST Success] Status Code:", post_response.status_code)[span_34](start_span)[span_34](end_span)
+    except requests.exceptions.RequestException as error:
+        print("[API POST Failed]:", error)[span_35](start_span)[span_35](end_span)
+
+    # --- JSON File Operations ---
+    json_path = "config.json[span_36](start_span)"[span_36](end_span)
+    with open(json_path, "w") as f:
+        json.dump(api_data, f, indent=4)  # Write dict to JSON file[span_37](start_span)[span_37](end_span)
+        
+    with open(json_path, "r") as f:
+        loaded_json = json.load(f)         # Read JSON file back to dict[span_38](start_span)[span_38](end_span)
+
+    # --- CSV File Operations ---
+    csv_path = "results.csv[span_39](start_span)"[span_39](end_span)
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.writer(f)[span_40](start_span)[span_40](end_span)
+        writer.writerow(["Model_ID", "Accuracy", "Status"])[span_41](start_span)[span_41](end_span)
+        writer.writerow([101, 0.91, "PASSED"])[span_42](start_span)[span_42](end_span)
+        writer.writerow([102, 0.64, "FAILED"])[span_43](start_span)[span_43](end_span)
+
+    with open(csv_path, "r") as f:
+        reader = csv.DictReader(f)         # Read CSV as dictionaries[span_44](start_span)[span_44](end_span)
+        print("[CSV Records Read]:")
+        for row in reader:
+            print(f"  - Model {row['Model_ID']}: {row['Accuracy']} ({row['Status']})")[span_45](start_span)[span_45](end_span)
+
+    # --- TXT File Operations ---
+    txt_path = "log.txt[span_46](start_span)"[span_46](end_span)
+    with open(txt_path, "w") as f:
+        f.write("System Log: Experiment completed without fatal errors.\n")[span_47](start_span)[span_47](end_span)
+
+
+# =====================================================================
+# 4. NUMPY: ARRAYS, RESHAPING, SLICING, MASKING & AGGREGATIONS
+# =====================================================================
+def run_numpy_pipeline():
+    # 1D Array creation[span_48](start_span)[span_48](end_span)
+    raw_data = np.array([52, 88, 95, 41, 63, 79, 85, 92, 70, 81, 60, 99])[span_49](start_span)[span_49](end_span)
+    
+    # Array Reshaping: 12 elements -> 4 rows x 3 columns (e.g., 4 models, 3 evaluation runs)[span_50](start_span)[span_50](end_span)
+    matrix = raw_data.reshape(4, 3)[span_51](start_span)[span_51](end_span)
+    print("\n[NumPy Array Matrix (4x3)]:\n", matrix)[span_52](start_span)[span_52](end_span)
+    print("Shape:", matrix.shape, "| Dimensions:", matrix.ndim)[span_53](start_span)[span_53](end_span)
+
+    # Indexing and Slicing: Extract sub-matrix (Rows 0 to 1, Columns 1 to 2)[span_54](start_span)[span_54](end_span)
+    sub_matrix = matrix[0:2, 1:3][span_55](start_span)[span_55](end_span)
+    print("\n[Sliced Matrix (Rows 0-1, Cols 1-2)]:\n", sub_matrix)[span_56](start_span)[span_56](end_span)
+
+    # Matrix Multiplication (@ operator)[span_57](start_span)[span_57](end_span)
+    weights = np.ones((3, 2))                    # Shape (3x2)[span_58](start_span)[span_58](end_span)
+    weighted_scores = matrix @ weights           # Shape (4x3) @ (3x2) -> (4x2)[span_59](start_span)[span_59](end_span)
+    print("\n[Matrix Multiplication (@) Result Shape]:", weighted_scores.shape)[span_60](start_span)[span_60](end_span)
+
+    # Aggregations & Axis Operations[span_61](start_span)[span_61](end_span)
+    # axis=0: Aggregate down columns (Average score per evaluation run)[span_62](start_span)[span_62](end_span)
+    run_averages = np.mean(matrix, axis=0)[span_63](start_span)[span_63](end_span)
+    # axis=1: Aggregate across rows (Average score per model)[span_64](start_span)[span_64](end_span)
+    model_averages = np.mean(matrix, axis=1)[span_65](start_span)[span_65](end_span)
+    
+    print("\nEvaluation Run Averages (axis=0):", run_averages)[span_66](start_span)[span_66](end_span)
+    print("Model-wise Averages (axis=1):", model_averages)[span_67](start_span)[span_67](end_span)
+    print("Highest Overall Score:", np.max(matrix))[span_68](start_span)[span_68](end_span)
+    print("Index of Best Model:", np.argmax(model_averages))[span_69](start_span)[span_69](end_span)
+
+    # Boolean Masking and Data Filtering[span_70](start_span)[span_70](end_span)
+    mask = matrix >= 80[span_71](start_span)[span_71](end_span)
+    high_scores = matrix[mask]                   # Extract elements >= 80[span_72](start_span)[span_72](end_span)
+    print("\n[Boolean Masking] All scores >= 80:", high_scores)[span_73](start_span)[span_73](end_span)
+
+    # Vectorized Conditional Selection using np.where()[span_74](start_span)[span_74](end_span)
+    status_matrix = np.where(matrix >= 70, "PASS", "FAIL")[span_75](start_span)[span_75](end_span)
+    print("\n[np.where Conditional Status Matrix]:\n", status_matrix)[span_76](start_span)[span_76](end_span)
+
+
+# =====================================================================
+# MAIN EXECUTION
+# =====================================================================
+if __name__ == "__main__":
+    print("=== 1. OOP DEMONSTRATION ===")
+    agents = [SecurityAgent(1, "SecBot"), AnalysisAgent(2, "DataBot")]
+    for agent in agents:
+        print(agent.run_task())                  # Demonstrates Polymorphism[span_77](start_span)[span_77](end_span)
+    print("Private key access via getter:", agents[0].get_secret_key())[span_78](start_span)[span_78](end_span)
+
+    print("\n=== 2. DATA STRUCTURES & LAMBDAS DEMONSTRATION ===")
+    scores = [0.92, 0.65, 0.81, 0.74]
+    s_dict, tags, passing, m_map = process_experiment_data(scores, "AI", "Lab", "AI", "Test")
+    print("Sorted Dict:", s_dict)
+    print("Unique Tags Set:", tags)
+    print("Passing Models (>= 0.75):", passing)
+    print("Zipped Metric Map:", m_map)
+
+    print("\n=== 3. FILES & API DEMONSTRATION ===")
+    handle_files_and_apis()
+
+    print("\n=== 4. NUMPY DEMONSTRATION ===")
+    run_numpy_pipeline()
